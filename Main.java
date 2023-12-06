@@ -3,69 +3,88 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class CGEB {
+public class Main {
 
-    //CGEB algorithms
-    public static List<Set<String>> CGEBFucntion(UD UD, int minsup, double E) {
+    // CGEB algorithms
+    public static List<C> CGEBFucntion(UD UD, int minsup, double minpro) {
         List<Set<String>> F = new ArrayList<>();
         Set<String> elements = new HashSet<>();
 
-        //Seperate the prob out of UD
+        // Seperate the prob out of UD
         List<Set<String>> D = UD.removeProbFromUD();
 
-        //Get unique data
+        // Get unique data
         for (Set<String> transaction : D) {
             for (String item : transaction) {
                 elements.add(item);
             }
         }
 
-        //Init the first set from the unique data (F)
+        // Init the first set from the unique data (F)
         for (String e : elements) {
             Set<String> itemSet = new HashSet<>();
             itemSet.add(e);
             F.add(itemSet);
         }
 
-        List<Set<String>> result = new ArrayList<>();
-        Set<String> var = new HashSet<>();
+        List<C> result = new ArrayList<>();
+        Set<String> varList = new HashSet<>();
 
-        //Start checking (F) if it contains in database
-        while (!F.isEmpty()) {
+        // Start checking (F) if it contains in database
+        while (true) {
             List<Set<String>> L = new ArrayList<>();
             for (Set<String> f : F) {
                 int count = 0;
                 double prob = 0;
                 int temp = 0;
+                double var = 0;
                 for (Set<String> transaction : D) {
                     if (transaction.containsAll(f)) {
+                        prob += UD.getProb(temp);
+                        var += UD.getProb(temp) * (1 - UD.getProb(temp));
                         count++;
-                        prob+=UD.getProb(temp);
                     }
                     temp++;
+                    // If meet requirements, add this set to result (minsup and lb(E(f)))
+                    if (count >= minsup && prob / D.size() >= minpro) {
+                        // Set<String> ff = f;
+                        // String tempS = String.format("%.2f", prob*(1-prob));
+                        // System.out.println(tempS);
+                        // ff.add(tempS);
+                        result.add(new C(f,Double.parseDouble(String.format("%.2f", prob/D.size())),var,temp));
+                        varList.add(String.format("%.5f", var));
+                        break;
+                    }
                 }
-                prob = Double.parseDouble(String.format("%.2f", prob / D.size()));
-                //If meet requirements, add this set to result (minsup and lb(E(f)))
-                if (count >= minsup && prob >= E) {
-                    result.add(f);
-                }
-                //Adding to L for preparing the next set generation
                 L.add(f);
-                var.add(String.format("%.2f", prob*(1-prob)));
             }
 
-            //If L not empty, start union each other between L and unique set
+            // If L not empty, start union each other between L and unique set
             if (L.isEmpty()) {
-                break;
+                return result;
             } else {
                 F = generateSet(L, elements);
             }
         }
-        result.add(var);
-        return result;
+        // result.add(varList);
+        
     }
 
-    //Generation the union set from 2 set
+    //APFI-MAX
+    private static List<C> APFI_MAX(UD UD, int minsup, double minpro){
+        List<C> C = CGEBFucntion(UD, minsup, minpro);
+        
+        for (int i=C.size()-1;i>=0;i--){
+            Set<String> subC = C.get(i).getSet();
+            for (String string : subC) {
+                continue;
+            }
+            }
+        
+        return C;
+    }
+
+    // Generation the union set from 2 set
     private static List<Set<String>> generateSet(List<Set<String>> A, Set<String> B) {
         List<Set<String>> result = new ArrayList<>();
         List<String> bList = new ArrayList<>(B);
@@ -79,17 +98,16 @@ public class CGEB {
                 result.add(newSet);
             }
         }
-
         return result;
     }
 
     public static void main(String[] args) {
-        //Read data
+        // Read data
         UD UD = new UD("data.txt");
 
         System.out.println(UD.removeProbFromUD());
-        List<Set<String>> res = CGEBFucntion(UD, 1,0.2);
-        for (Set<String> set : res) {
+        List<C> res = APFI_MAX(UD, 1, 0.3);
+        for (C set : res) {
             System.out.println(set);
         }
     }

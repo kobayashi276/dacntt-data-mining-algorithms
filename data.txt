@@ -1,5 +1,3 @@
-ABE 0.4
-ACE 0.5
+ABCD 0.5
 BCD 0.6
-ABD 0.3
-BCE 0.7
+ABD 0.7
