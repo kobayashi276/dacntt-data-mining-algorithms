@@ -7,7 +7,6 @@ public class Main {
 
     // CGEB algorithms
     public static List<C> CGEBFucntion(UD UD, int minsup, double minpro) {
-        System.out.println(lb(minsup, minpro));
         List<Set<String>> F = new ArrayList<>();
         Set<String> elements = new HashSet<>();
 
@@ -48,7 +47,7 @@ public class Main {
                         prob *= UD.getProb(j);
                         count++;
                     }
-                    System.out.println(f + " " + transaction + " " + E + " " + count);
+                    // System.out.println(f + " " + transaction + " " + E + " " + count);
                     j++;
                     // If meet requirements, add this set to result (minsup and lb(E(f)))
                     if (count >= minsup && E >= lb(minsup, minpro)) {
@@ -57,7 +56,7 @@ public class Main {
                         // String tempS = String.format("%.2f", prob*(1-prob));
                         // System.out.println(tempS);
                         // ff.add(tempS);
-                        result.add(new C(f,Double.parseDouble(String.format("%.2f", prob/D.size())),var,temp));
+                        result.add(new C(f,Double.parseDouble(String.format("%.2f",E)),var,j,prob));
                         varList.add(String.format("%.5f", var));
                         break;
                     }
