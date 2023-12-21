@@ -57,7 +57,7 @@ public class Main {
                         // String tempS = String.format("%.2f", prob*(1-prob));
                         // System.out.println(tempS);
                         // ff.add(tempS);
-                        result.add(new C(f,Double.parseDouble(String.format("%.2f",E)),var,j,prob));
+                        result.add(new C(f,Double.parseDouble(String.format("%.2f", prob/D.size())),var,temp));
                         varList.add(String.format("%.5f", var));
                         break;
                     }
@@ -73,24 +73,24 @@ public class Main {
             }
         }
         // result.add(varList);
-        
+
     }
 
     private static double lb(double minsup, double minpro){
         return (2*minsup - Math.log(minpro) - Math.sqrt(Math.pow(Math.log(minpro),2)-8*Math.log(minpro)))/2;
     }
 
-    //APFI-MAX
-    private static List<C> APFI_MAX(UD UD, int minsup, double minpro){
+    // APFI-MAX
+    private static List<C> APFI_MAX(UD UD, int minsup, double minpro) {
         List<C> C = CGEBFucntion(UD, minsup, minpro);
-        
-        for (int i=C.size()-1;i>=0;i--){
+
+        for (int i = C.size() - 1; i >= 0; i--) {
             Set<String> subC = C.get(i).getSet();
             for (String string : subC) {
                 continue;
             }
-            }
-        
+        }
+
         return C;
     }
 
@@ -109,6 +109,10 @@ public class Main {
             }
         }
         return result;
+    }
+
+    private static double lb(int T, double minpro) {
+        return (2 * T - Math.log(minpro) - Math.sqrt(Math.pow(Math.log(minpro), 2) - 8 * Math.log(minpro))) / 2;
     }
 
     public static void main(String[] args) {
