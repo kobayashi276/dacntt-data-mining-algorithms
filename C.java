@@ -6,12 +6,14 @@ public class C {
     private double E;
     private double Var;
     private int j;
+    private double prob;
 
-    public C(Set<String> set, double E, double Var, int j){
+    public C(Set<String> set, double E, double Var, int j, double prob){
         this.set = set;
         this.E = E;
         this.Var = Var;
         this.j = j;
+        this.prob = prob;
     }
 
     public Set<String> getSet(){
@@ -30,7 +32,11 @@ public class C {
         return this.j;
     }
 
+    public double getProb(){
+        return this.prob;
+    }
+
     public String toString(){
-        return this.set.toString() + ", " + this.E + ", " + this.Var + ", " + this.j ;
+        return "Set: " + this.set.toString() + ", Exception: " + this.E + ", Variance: " + this.Var + ", Threshold: " + this.j + ", Probability: " + this.prob ;
     }
 }

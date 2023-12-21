@@ -7,11 +7,13 @@ public class Main {
 
     // CGEB algorithms
     public static List<C> CGEBFucntion(UD UD, int minsup, double minpro) {
+        System.out.println(lb(minsup, minpro));
         List<Set<String>> F = new ArrayList<>();
         Set<String> elements = new HashSet<>();
 
         // Seperate the prob out of UD
         List<Set<String>> D = UD.removeProbFromUD();
+        System.out.println(D);
 
         // Get unique data
         for (Set<String> transaction : D) {
@@ -35,23 +37,27 @@ public class Main {
             List<Set<String>> L = new ArrayList<>();
             for (Set<String> f : F) {
                 int count = 0;
-                double prob = 0;
-                int temp = 0;
+                double E = 0;
+                int j = 0;
                 double var = 0;
+                double prob = 1;
                 for (Set<String> transaction : D) {
                     if (transaction.containsAll(f)) {
-                        prob += UD.getProb(temp);
-                        var += UD.getProb(temp) * (1 - UD.getProb(temp));
+                        E += UD.getProb(j);
+                        var += UD.getProb(j) * (1 - UD.getProb(j));
+                        prob *= UD.getProb(j);
                         count++;
                     }
-                    temp++;
+                    System.out.println(f + " " + transaction + " " + E + " " + count);
+                    j++;
                     // If meet requirements, add this set to result (minsup and lb(E(f)))
-                    if (count >= minsup && prob / D.size() >= minpro) {
+                    if (count >= minsup && E >= lb(minsup, minpro)) {
+                        // System.out.println("true");
                         // Set<String> ff = f;
                         // String tempS = String.format("%.2f", prob*(1-prob));
                         // System.out.println(tempS);
                         // ff.add(tempS);
-                        result.add(new C(f,Double.parseDouble(String.format("%.2f", prob/D.size())),var,temp));
+                        result.add(new C(f,Double.parseDouble(String.format("%.2f",E)),var,j,prob));
                         varList.add(String.format("%.5f", var));
                         break;
                     }
@@ -68,6 +74,10 @@ public class Main {
         }
         // result.add(varList);
         
+    }
+
+    private static double lb(double minsup, double minpro){
+        return (2*minsup - Math.log(minpro) - Math.sqrt(Math.pow(Math.log(minpro),2)-8*Math.log(minpro)))/2;
     }
 
     //APFI-MAX
@@ -103,10 +113,9 @@ public class Main {
 
     public static void main(String[] args) {
         // Read data
-        UD UD = new UD("data.txt");
+        UD UD = new UD("data.txt"); 
 
-        System.out.println(UD.removeProbFromUD());
-        List<C> res = APFI_MAX(UD, 1, 0.3);
+        List<C> res = APFI_MAX(UD, 2, 0.5);
         for (C set : res) {
             System.out.println(set);
         }
