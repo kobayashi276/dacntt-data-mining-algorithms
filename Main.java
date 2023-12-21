@@ -48,7 +48,6 @@ public class Main {
                         count++;
                     }
                     // System.out.println(f + " " + transaction + " " + E + " " + count);
-                    j++;
                     // If meet requirements, add this set to result (minsup and lb(E(f)))
                     if (count >= minsup && E >= lb(minsup, minpro)) {
                         // System.out.println("true");
@@ -60,6 +59,7 @@ public class Main {
                         varList.add(String.format("%.5f", var));
                         break;
                     }
+                    j++;
                 }
                 L.add(f);
             }
