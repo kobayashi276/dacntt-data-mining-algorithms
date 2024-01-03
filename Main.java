@@ -76,21 +76,54 @@ public class Main {
     }
 
     private static double lb(double minsup, double minpro){
-        return (2*minsup - Math.log(minpro) - Math.sqrt(Math.pow(Math.log(minpro),2)-8*Math.log(minpro)))/2;
+        return (2*minsup - Math.log(minpro) - Math.sqrt(Math.pow(Math.log(minpro),2)-8*minpro*Math.log(minpro)))/2;
+    }
+
+    private static double ub(double minsup, double minpro){
+        return (minsup - Math.log(1-minpro) + Math.sqrt(Math.pow(Math.log(1-minpro), 2) - 2 * minpro * Math.log(1-minpro)));
     }
 
     // APFI-MAX
     private static List<C> APFI_MAX(UD UD, int minsup, double minpro) {
+        System.out.println("Lowerbound: " + Double.toString(lb(minsup, minpro)));
+        System.out.println("Upperbound: " + Double.toString(ub(minsup, minpro)));
+
         List<C> C = CGEBFucntion(UD, minsup, minpro);
 
-        for (int i = C.size() - 1; i >= 0; i--) {
-            Set<String> subC = C.get(i).getSet();
-            for (String string : subC) {
-                continue;
-            }
-        }
+        List<C> res = new ArrayList<>();
+        List<Set<String>> Fre_Cur = new ArrayList<>();
+        List<Set<String>> Fre_Pre = new ArrayList<>();
 
-        return C;
+        for (int i = C.size() - 1; i >= 0; i--) {
+            Set<String> X = C.get(i).getSet();
+            for (String string : X) {  
+                if (X.contains(string) && Fre_Pre.containsAll(X)){
+                    Fre_Cur.add(X);
+                }
+                if (FM(minsup,minpro,C.get(i).getE())){
+                    if (!res.contains(C.get(i))){
+                        res.add(C.get(i));
+                    }
+                    Fre_Cur.add(X);
+                }
+            }
+            Fre_Pre = Fre_Cur;
+            Fre_Cur = new ArrayList<>();
+        }
+        return res;
+    }
+
+    // FM
+    private static boolean FM(int minsup, double minpro, double E){
+        if (E >= ub(minsup, minpro)){
+            return true;
+        }
+        else if (lb(minsup, minpro) < minsup){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
     // Generation the union set from 2 set
@@ -110,15 +143,11 @@ public class Main {
         return result;
     }
 
-    private static double lb(int T, double minpro) {
-        return (2 * T - Math.log(minpro) - Math.sqrt(Math.pow(Math.log(minpro), 2) - 8 * Math.log(minpro))) / 2;
-    }
-
     public static void main(String[] args) {
         // Read data
         UD UD = new UD("data.txt"); 
 
-        List<C> res = APFI_MAX(UD, 2, 0.5);
+        List<C> res = APFI_MAX(UD, 2, 0.6);
         for (C set : res) {
             System.out.println(set);
         }
