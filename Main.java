@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class Main {
@@ -9,6 +10,7 @@ public class Main {
     public static List<C> CGEBFucntion(UD UD, int minsup, double minpro) {
         List<Set<String>> F = new ArrayList<>();
         Set<String> elements = new HashSet<>();
+        Map<String, Double> elementsProbability = UD.getProbability();
 
         // Seperate the prob out of UD
         List<Set<String>> D = UD.removeProbFromUD();
@@ -37,29 +39,25 @@ public class Main {
             for (Set<String> f : F) {
                 int count = 0;
                 double E = 0;
-                int j = 0;
                 double var = 0;
                 double prob = 1;
+                for (String ff : f) {
+                    prob *= elementsProbability.get(ff);
+                }
                 for (Set<String> transaction : D) {
                     if (transaction.containsAll(f)) {
-                        E += UD.getProb(j);
-                        var += UD.getProb(j) * (1 - UD.getProb(j));
-                        prob *= UD.getProb(j);
+                        E += prob;
+                        var += prob * (1 - prob);
                         count++;
                     }
-                    // System.out.println(f + " " + transaction + " " + E + " " + count);
                     // If meet requirements, add this set to result (minsup and lb(E(f)))
                     if (count >= minsup && E >= lb(minsup, minpro)) {
-                        // System.out.println("true");
-                        // Set<String> ff = f;
-                        // String tempS = String.format("%.2f", prob*(1-prob));
-                        // System.out.println(tempS);
-                        // ff.add(tempS);
-                        result.add(new C(f,Double.parseDouble(String.format("%.2f",E)),var,j,prob));
+                        result.add(new C(f, Double.parseDouble(String.format("%.2f", E)),
+                                Double.parseDouble(String.format("%.2f", var)), count,
+                                Double.parseDouble(String.format("%.2f", prob))));
                         varList.add(String.format("%.5f", var));
                         break;
                     }
-                    j++;
                 }
                 L.add(f);
             }
@@ -71,16 +69,17 @@ public class Main {
                 F = generateSet(L, elements);
             }
         }
-        // result.add(varList);
+    }
+    // result.add(varList);
 
+    private static double lb(double minsup, double minpro) {
+        return (2 * minsup - Math.log(minpro)
+                - Math.sqrt(Math.pow(Math.log(minpro), 2) - 8 * minpro * Math.log(minpro))) / 2;
     }
 
-    private static double lb(double minsup, double minpro){
-        return (2*minsup - Math.log(minpro) - Math.sqrt(Math.pow(Math.log(minpro),2)-8*minpro*Math.log(minpro)))/2;
-    }
-
-    private static double ub(double minsup, double minpro){
-        return (minsup - Math.log(1-minpro) + Math.sqrt(Math.pow(Math.log(1-minpro), 2) - 2 * minpro * Math.log(1-minpro)));
+    private static double ub(double minsup, double minpro) {
+        return (minsup - Math.log(1 - minpro)
+                + Math.sqrt(Math.pow(Math.log(1 - minpro), 2) - 2 * minpro * Math.log(1 - minpro)));
     }
 
     // APFI-MAX
@@ -96,12 +95,12 @@ public class Main {
 
         for (int i = C.size() - 1; i >= 0; i--) {
             Set<String> X = C.get(i).getSet();
-            for (String string : X) {  
-                if (X.contains(string) && Fre_Pre.containsAll(X)){
+            for (String string : X) {
+                if (X.contains(string) && Fre_Pre.containsAll(X)) {
                     Fre_Cur.add(X);
                 }
-                if (FM(minsup,minpro,C.get(i).getE())){
-                    if (!res.contains(C.get(i))){
+                if (FM(minsup, minpro, C.get(i).getE())) {
+                    if (!res.contains(C.get(i))) {
                         res.add(C.get(i));
                     }
                     Fre_Cur.add(X);
@@ -114,14 +113,12 @@ public class Main {
     }
 
     // FM
-    private static boolean FM(int minsup, double minpro, double E){
-        if (E >= ub(minsup, minpro)){
+    private static boolean FM(int minsup, double minpro, double E) {
+        if (E >= ub(minsup, minpro)) {
             return true;
-        }
-        else if (lb(minsup, minpro) < minsup){
+        } else if (lb(minsup, minpro) < minsup) {
             return true;
-        }
-        else{
+        } else {
             return false;
         }
     }
@@ -145,11 +142,14 @@ public class Main {
 
     public static void main(String[] args) {
         // Read data
-        UD UD = new UD("data.txt"); 
+        UD UD = new UD("data.txt");
+        System.out.println(UD);
 
         List<C> res = APFI_MAX(UD, 2, 0.6);
         for (C set : res) {
             System.out.println(set);
         }
+
     }
+
 }
