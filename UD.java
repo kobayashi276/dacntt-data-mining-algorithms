@@ -23,7 +23,7 @@ public class UD {
             while ((line = reader.readLine()) != null) {
                 String[] tempItem = line.split(" ");
 
-                this.UD.add(new Item(tempItem[0]));
+                this.UD.add(new Item(tempItem));
             }
 
             List<Set<String>> tempDataset = removeProbFromUD();

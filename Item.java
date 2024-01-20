@@ -10,11 +10,11 @@ public class Item {
     private Set<String> item;
 
     //Init and get data to object
-    public Item(String item){
+    public Item(String[] item){
         Set<String> temp = new HashSet<>();
         List<Double> probTemp = new ArrayList<>();
-        for (int i=0;i<item.length();i++){
-            temp.add(String.valueOf(item.charAt(i)));
+        for (int i=0;i<item.length;i++){
+            temp.add(String.valueOf(item[i]));
             probTemp.add(probRandom());
         }
 
