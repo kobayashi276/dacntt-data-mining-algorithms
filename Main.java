@@ -63,12 +63,21 @@ public class Main {
             
             }
 
+            int maxlengthL = 0;
+
+            for (Set<String> l: L){
+                if (maxlengthL<l.size()){
+                    maxlengthL = l.size();
+                }
+            }
+
             // If L not empty, start union each other between L and unique set
-            if (L.isEmpty()) {
+            if (L.isEmpty() || maxlengthL==elementsProbability.size()) {
                 return result;
             } else {
                 F = generateSet(L, elements);
             }
+            return result;
         }
     }
     // result.add(varList);
@@ -146,7 +155,7 @@ public class Main {
         UD UD = new UD("data.txt");
         System.out.println(UD.getProbability());
 
-        List<C> res = APFI_MAX(UD, 5, 0.6);
+        List<C> res = APFI_MAX(UD, 2, 0.2);
         for (C set : res) {
             System.out.println(set);
         }
