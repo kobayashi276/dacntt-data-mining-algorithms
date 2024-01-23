@@ -56,10 +56,11 @@ public class Main {
                                 Double.parseDouble(String.format("%.2f", var)), count,
                                 Double.parseDouble(String.format("%.2f", prob))));
                         varList.add(String.format("%.5f", var));
+                        L.add(f);
                         break;
                     }
                 }
-                L.add(f);
+            
             }
 
             // If L not empty, start union each other between L and unique set
@@ -143,9 +144,9 @@ public class Main {
     public static void main(String[] args) {
         // Read data
         UD UD = new UD("data.txt");
-        System.out.println(UD);
+        System.out.println(UD.getProbability());
 
-        List<C> res = APFI_MAX(UD, 2, 0.6);
+        List<C> res = APFI_MAX(UD, 5, 0.6);
         for (C set : res) {
             System.out.println(set);
         }
