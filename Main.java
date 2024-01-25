@@ -1,13 +1,22 @@
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class Main {
+    static Date currentDate = new Date();
+    static SimpleDateFormat dateFormat = new SimpleDateFormat("YYYYMMDD.HHmmss");
+    static String formattedDate = dateFormat.format(currentDate);
 
     // CGEB algorithms
     public static List<C> CGEBFucntion(UD UD, int minsup, double minpro) {
+        System.out.println("Start CGEBFucntion");
         List<Set<String>> F = new ArrayList<>();
         Set<String> elements = new HashSet<>();
         Map<String, Double> elementsProbability = UD.getProbability();
@@ -60,19 +69,20 @@ public class Main {
                         break;
                     }
                 }
-            
+
             }
 
             int maxlengthL = 0;
 
-            for (Set<String> l: L){
-                if (maxlengthL<l.size()){
+            for (Set<String> l : L) {
+                if (maxlengthL < l.size()) {
                     maxlengthL = l.size();
                 }
             }
 
             // If L not empty, start union each other between L and unique set
-            if (L.isEmpty() || maxlengthL==elementsProbability.size()) {
+            if (L.isEmpty() || maxlengthL == elementsProbability.size()) {
+                System.out.println("End CGEBFucntion");
                 return result;
             } else {
                 F = generateSet(L, elements);
@@ -98,6 +108,7 @@ public class Main {
         System.out.println("Upperbound: " + Double.toString(ub(minsup, minpro)));
 
         List<C> C = CGEBFucntion(UD, minsup, minpro);
+        System.out.println("Start APFI_MAX");
 
         List<C> res = new ArrayList<>();
         List<Set<String>> Fre_Cur = new ArrayList<>();
@@ -119,6 +130,7 @@ public class Main {
             Fre_Pre = Fre_Cur;
             Fre_Cur = new ArrayList<>();
         }
+        System.out.println("End APFI_MAX");
         return res;
     }
 
@@ -151,15 +163,39 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        // Read data
-        UD UD = new UD("data.txt");
-        System.out.println(UD.getProbability());
+        try {
 
-        List<C> res = APFI_MAX(UD, 2, 0.2);
-        for (C set : res) {
-            System.out.println(set);
+            // Set the file output name with the current date and time
+            String fileName = "output_" + formattedDate + ".txt";
+
+            // Redirect the output to the file with the current date and time
+            PrintStream fileOut = new PrintStream(new FileOutputStream(fileName));
+            System.setOut(fileOut);
+
+            long start = System.currentTimeMillis();
+            long startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+
+            // Read data
+            UD UD = new UD("T10I4D100K.txt");
+
+            System.out.println(UD.getProbability());
+            // Call CGEBFucntion and store the result
+            List<C> apfiMaxResults = APFI_MAX(UD, 600000, 0.2);
+            System.out.println("APFI_MAX Results:");
+            for (C result : apfiMaxResults) {
+                System.out.println(result);
+            }
+
+            long end = System.currentTimeMillis();
+            long duration = end - start;
+            long endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+            long memoryUsed = endMemory - startMemory;
+            System.out.println("Code run time: " + duration + "ms");
+            System.out.println("Memory used: " + Math.round(memoryUsed / 1000.0) + " kb");
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
-
     }
 
 }
