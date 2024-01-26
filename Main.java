@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Main {
     static Date currentDate = new Date();
@@ -23,7 +24,6 @@ public class Main {
 
         // Seperate the prob out of UD
         List<Set<String>> D = UD.removeProbFromUD();
-        System.out.println(D);
 
         // Get unique data
         for (Set<String> transaction : D) {
@@ -50,6 +50,7 @@ public class Main {
                 double E = 0;
                 double var = 0;
                 double prob = 1;
+                int index = 0;
                 for (String ff : f) {
                     prob *= elementsProbability.get(ff);
                 }
@@ -61,13 +62,14 @@ public class Main {
                     }
                     // If meet requirements, add this set to result (minsup and lb(E(f)))
                     if (count >= minsup && E >= lb(minsup, minpro)) {
-                        result.add(new C(f, Double.parseDouble(String.format("%.2f", E)),
-                                Double.parseDouble(String.format("%.2f", var)), count,
-                                Double.parseDouble(String.format("%.2f", prob))));
+                        C C = new C(f, Double.parseDouble(String.format("%.2f", E)),Double.parseDouble(String.format("%.2f", var)), count,Double.parseDouble(String.format("%.2f", prob)));
+                        result.add(C);
+                        System.out.println(C);
                         varList.add(String.format("%.5f", var));
                         L.add(f);
                         break;
                     }
+                    index++;
                 }
 
             }
@@ -145,19 +147,40 @@ public class Main {
     }
 
     // Generation the union set from 2 set
+    // private static List<Set<String>> generateSet(List<Set<String>> A, Set<String>
+    // B) {
+    // List<Set<String>> result = new ArrayList<>();
+    // List<String> bList = new ArrayList<>(B);
+
+    // for (Set<String> a : A) {
+    // List<String> aList = new ArrayList<>(a);
+    // int index = bList.indexOf(aList.get(aList.size() - 1));
+    // for (int j = index + 1; j < bList.size(); j++) {
+    // Set<String> newSet = new HashSet<>(a);
+    // newSet.add(bList.get(j));
+    // result.add(newSet);
+    // }
+    // }
+    // return result;
+    // }
+
     private static List<Set<String>> generateSet(List<Set<String>> A, Set<String> B) {
         List<Set<String>> result = new ArrayList<>();
-        List<String> bList = new ArrayList<>(B);
 
         for (Set<String> a : A) {
-            List<String> aList = new ArrayList<>(a);
-            int index = bList.indexOf(aList.get(aList.size() - 1));
-            for (int j = index + 1; j < bList.size(); j++) {
-                Set<String> newSet = new HashSet<>(a);
-                newSet.add(bList.get(j));
-                result.add(newSet);
-            }
+            String lastElement = a.stream().reduce((first, second) -> second).orElse(null);
+            int index = new ArrayList<>(B).indexOf(lastElement);
+
+            result.addAll(B.stream()
+                    .skip(index + 1)
+                    .map(element -> {
+                        Set<String> newSet = new HashSet<>(a);
+                        newSet.add(element);
+                        return newSet;
+                    })
+                    .collect(Collectors.toList()));
         }
+
         return result;
     }
 
@@ -179,7 +202,7 @@ public class Main {
 
             System.out.println(UD.getProbability());
             // Call CGEBFucntion and store the result
-            List<C> apfiMaxResults = APFI_MAX(UD, 600000, 0.2);
+            List<C> apfiMaxResults = APFI_MAX(UD, 1, 0.3);
             System.out.println("APFI_MAX Results:");
             for (C result : apfiMaxResults) {
                 System.out.println(result);
