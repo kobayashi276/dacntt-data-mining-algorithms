@@ -77,7 +77,6 @@ public class Main {
             } else {
                 F = generateSet(L, elements);
             }
-            return result;
         }
     }
     // result.add(varList);
@@ -155,7 +154,7 @@ public class Main {
         UD UD = new UD("data.txt");
         System.out.println(UD.getProbability());
 
-        List<C> res = APFI_MAX(UD, 2, 0.2);
+        List<C> res = APFI_MAX(UD, 1, 0.3);
         for (C set : res) {
             System.out.println(set);
         }
